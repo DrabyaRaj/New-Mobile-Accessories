@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Approvals</title>
+    <style>
+        .approval-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .staff-item {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .staff-item button {
+            margin: 5px;
+        }
+
+        .approved-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="approval-container">
+    <h1>Staff Approvals</h1>
+    
+    <h2>Pending Approvals</h2>
+    <div id="pendingStaffList"></div>
+    
+    <h2 class="approved-section">Approved Staff</h2>
+    <div id="approvedStaffList"></div>
+</div>
+
+<script>
+    function renderStaffList() {
+        const staffList = JSON.parse(localStorage.getItem('staffList')) || [];
+        const pendingStaffListDiv = document.getElementById('pendingStaffList');
+        const approvedStaffListDiv = document.getElementById('approvedStaffList');
+
+        pendingStaffListDiv.innerHTML = '';
+        approvedStaffListDiv.innerHTML = '';
+
+        staffList.forEach((staff, index) => {
+            const staffItem = document.createElement('div');
+            staffItem.className = 'staff-item';
+            staffItem.innerHTML = `
+                <p><strong>Name:</strong> ${staff.firstName} ${staff.middleName ? staff.middleName + ' ' : ''}${staff.lastName}</p>
+                <p><strong>Email:</strong> ${staff.email}</p>
+                <p><strong>Phone:</strong> ${staff.phoneNumber}</p>
+            `;
+
+            if (!staff.approved) {
+                // If not approved, show buttons
+                staffItem.innerHTML += `
+                    <button onclick="approveStaff(${index})">Approve</button>
+                    <button onclick="removeStaff(${index})">Remove</button>
+                `;
+                pendingStaffListDiv.appendChild(staffItem);
+            } else {
+                // If approved, show remove button
+                staffItem.innerHTML += `
+                    <button onclick="removeApprovedStaff(${index})">Remove</button>
+                `;
+                approvedStaffListDiv.appendChild(staffItem);
+            }
+        });
+    }
+
+    function approveStaff(index) {
+        const staffList = JSON.parse(localStorage.getItem('staffList'));
+        staffList[index].approved = true; // Mark as approved
+        localStorage.setItem('staffList', JSON.stringify(staffList));
+        renderStaffList();
+
+        // Notify user via alert (in real-world scenario, use email service)
+        alert(`Notification sent to ${staffList[index].email}: You have been approved!`);
+    }
+
+    function removeStaff(index) {
+        const staffList = JSON.parse(localStorage.getItem('staffList'));
+        staffList.splice(index, 1); // Remove from list
+        localStorage.setItem('staffList', JSON.stringify(staffList));
+        renderStaffList();
+    }
+
+    function removeApprovedStaff(index) {
+        const staffList = JSON.parse(localStorage.getItem('staffList'));
+        staffList[index].approved = false; // Mark as not approved
+        localStorage.setItem('staffList', JSON.stringify(staffList));
+        renderStaffList();
+
+        // Notify user via alert
+        alert(`Notification sent to ${staffList[index].email}: Your approval has been revoked.`);
+    }
+
+    // Initial render
+    renderStaffList();
+</script>
+
+</body>
+</html>

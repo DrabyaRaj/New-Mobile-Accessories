@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Blog Management</title>
+    <style>
+        .blog-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .editor {
+            margin-bottom: 20px;
+        }
+
+        .editor input, .editor textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .blog-list {
+            margin-top: 20px;
+        }
+
+        .blog-item {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .blog-item h3 {
+            margin: 0;
+        }
+
+        .blog-item p {
+            margin: 5px 0;
+        }
+
+        .button {
+            margin: 5px;
+        }
+
+        .rich-text {
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 150px;
+            overflow: auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="blog-container">
+    <h1>Blog Management</h1>
+
+    <div class="editor">
+        <input type="text" id="blogTitle" placeholder="Blog Title" required>
+        <input type="file" id="blogImage" accept="image/*">
+        <div contenteditable="true" id="blogContent" class="rich-text" placeholder="Write your blog here..."></div>
+        <button onclick="addBlog()">Add Blog</button>
+    </div>
+
+    <div class="blog-list" id="blogList">
+        <h2>Existing Blogs</h2>
+        <!-- Blog items will be appended here -->
+    </div>
+</div>
+
+<script>
+    let blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+
+    function addBlog() {
+        const title = document.getElementById('blogTitle').value;
+        const content = document.getElementById('blogContent').innerHTML;
+        const image = document.getElementById('blogImage').files[0];
+
+        if (title && content) {
+            const blogId = new Date().getTime();
+            const blog = { id: blogId, title, content, image: image ? URL.createObjectURL(image) : '' };
+            blogs.push(blog);
+            localStorage.setItem('blogs', JSON.stringify(blogs));
+            renderBlogs();
+            resetForm();
+        } else {
+            alert('Please fill in the title and content.');
+        }
+    }
+
+    function renderBlogs() {
+        const blogList = document.getElementById('blogList');
+        blogList.innerHTML = '<h2>Existing Blogs</h2>';
+        blogs.forEach(blog => {
+            const blogItem = document.createElement('div');
+            blogItem.className = 'blog-item';
+            blogItem.innerHTML = `
+                <h3>${blog.title}</h3>
+                ${blog.image ? `<img src="${blog.image}" alt="${blog.title}" width="100">` : ''}
+                <div>${blog.content}</div>
+                <button class="button" onclick="editBlog(${blog.id})">Edit</button>
+                <button class="button" onclick="deleteBlog(${blog.id})">Delete</button>
+            `;
+            blogList.appendChild(blogItem);
+        });
+    }
+
+    function deleteBlog(id) {
+        blogs = blogs.filter(blog => blog.id !== id);
+        localStorage.setItem('blogs', JSON.stringify(blogs));
+        renderBlogs();
+    }
+
+    function editBlog(id) {
+        const blog = blogs.find(blog => blog.id === id);
+        if (blog) {
+            document.getElementById('blogTitle').value = blog.title;
+            document.getElementById('blogContent').innerHTML = blog.content;
+            document.getElementById('blogImage').value = '';
+            deleteBlog(id);
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('blogTitle').value = '';
+        document.getElementById('blogContent').innerHTML = '';
+        document.getElementById('blogImage').value = '';
+    }
+
+    renderBlogs(); // Initial render
+</script>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!-- Coding by Drabya Raj Niraula-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Mobile Accessoires | Home</title>
+        <!-- Favicon -->
+        <link rel="shortcut icon" href="/favicon_io/android-chrome-192x192.png" type="image/png">
+    <!-- Linking Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <!-- Linking Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="/Lib/style.css" />
+    <style>
+      .blog-container {
+          max-width: 800px;
+          margin: auto;
+          background: white;
+          padding: 20px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          border-radius: 5px;
+      }
+
+      h1 {
+          text-align: center;
+      }
+
+      .blog-item {
+          border-bottom: 1px solid #ccc;
+          padding: 10px 0;
+      }
+
+      .blog-item h3 {
+          margin: 0;
+      }
+
+      .blog-item img {
+          max-width: 100%;
+          height: auto;
+      }
+  </style>
+</head>
+<body>
+     <!-- Header / Navbar -->
+     <header>
+      <nav class="navbar">
+        <a href="#" class="nav-logo">
+          <h2 class="logo-text">New Mobile Accessories</h2>
+        </a>
+
+        <ul class="nav-menu">
+          <button id="menu-close-button" class="fas fa-times"></button>
+
+          <li class="nav-item">
+            <a href="/index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="/Home/about.html" class="nav-link">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="/Home/blog.html" class="nav-link">Blog</a>
+          </li>
+          <ul>
+            <li>
+                <a href="#">Help</a>
+                <ul class="dropdown-content">
+                    <li><a href="/Home/Policy.html">Policy</a></li>
+                    <li><a href="/Home/Terms&Conditions.html">Terms & Conditions</a></li>
+                    <li><a href="/Home/FAQ.html">FAQ</a></li>
+                    <li><a href="/Teams/Teams.html">Our Team</a></li>
+                </ul>
+            </li>
+        </ul>
+          <li class="nav-item">
+            <a href="/Home/contact.html" class="nav-link">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a href="/Account/Login.html" class="nav-link">Login</a>
+          </li>
+        </ul>
+
+        <button id="menu-open-button" class="fas fa-bars"></button>
+      </nav>
+    </header>
+    <br>
+    <br>
+    <br>
+    <br>
+  <div class="blog-container">
+    <h1>Blogs</h1>
+    <div id="blogList">
+        <!-- Blog items will be appended here -->
+    </div>
+</div>
+
+<script>
+    const blogList = document.getElementById('blogList');
+
+    // Fetching blogs from local storage
+    const blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+
+    // Displaying blogs
+    blogs.forEach(blog => {
+        const blogItem = document.createElement('div');
+        blogItem.className = 'blog-item';
+        blogItem.innerHTML = `
+            <h3>${blog.title}</h3>
+            ${blog.image ? `<img src="${blog.image}" alt="${blog.title}">` : ''}
+            <div>${blog.content}</div>
+        `;
+        blogList.appendChild(blogItem);
+    });
+</script>
+
+    </main>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+      <!-- Footer section -->
+      <footer class="footer-section">
+        <div class="section-content">
+          <p class="copyright-text">© B.S 2068 New Mobile Accessroies</p>
+
+          <div class="social-link-list">
+            <a href="#" class="social-link"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Linking Swiper script -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Linking custom script -->
+    <script src="/Lib/script.js"></script>
+  </body>
+</html>

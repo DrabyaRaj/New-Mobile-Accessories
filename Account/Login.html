@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link rel="shortcut icon" href="/favicon_io/logo.png" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: none;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #005bb5;
+        }
+
+        .remember-me {
+            margin-bottom: 15px;
+        }
+
+        /* Modal Style */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-buttons button:hover {
+            background-color: #005bb5;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Modal for Remember Me -->
+    <div id="rememberMeModal" class="modal">
+        <div class="modal-content">
+            <h2>You are remembered</h2>
+            <p>What would you like to do?</p>
+            
+            <div class="modal-buttons">
+                <button id="loginButton">Login Again</button>
+                <button id="dashboardButton">Go to Dashboard</button>
+            </div>
+            <br>
+            <a style="color: black; text-decoration: none;" href="/Teams/IT Service.html">Need help?</a>
+        </div>
+        
+    </div>
+
+    <div class="login-container">
+        <button style="
+        border: 0px; 
+        background-color: transparent;
+        font-size: 30px;
+        text-align: center;
+        margin-left: 35%;
+        "
+        class="g-recaptcha" data-sitekey="6LcwA2wqAAAAAHPtFxW5fkTHxxfDCNnU64ToK5JX" data-callback="onSubmit"><b>Login</b></button>
+
+        
+        <form id="loginForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe" label for="rememberMe">Remember Me</label> 
+            </div>
+            <div class="g-recaptcha" data-sitekey="6LcQA2wqAAAAAMsxru3P1ib_orB14hgD0cw0VUs9"></div>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+    
+    <script>
+        // Sample permanent admin credentials (stored permanently)
+        const adminUser = {
+            email: 'info.nmaservice@gmail.com',
+            password: 'Dilliram2045',
+            role: 'admin'
+        };
+
+        // Function to redirect based on role
+        function redirectToHomePage(role) {
+            if (role === 'admin') {
+                window.location.href = '/Admin/Home.html';
+            } else if (role === 'receptionist') {
+                window.location.href = '/Receptionist/Home.html';
+            } else {
+                window.location.href = '/Staff/Home.html';
+            }
+        }
+
+        // Fetch staff list from localStorage
+        let staffList = JSON.parse(localStorage.getItem('staffList')) || [];
+
+        // Show the login form if the user is not remembered
+        function showLoginForm() {
+            document.querySelector('.login-container').style.display = 'block';
+        }
+
+        // Function to handle login
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            // Check for admin credentials
+            if (email === adminUser.email && password === adminUser.password) {
+                if (rememberMe) {
+                    localStorage.setItem('loggedInUser', JSON.stringify(adminUser));
+                }
+                redirectToHomePage('admin');
+                return;
+            }
+
+            // Check if staff exists in the staff list
+            const user = staffList.find(staff => staff.email === email && staff.password === password);
+
+            if (user) {
+                if (rememberMe) {
+                    localStorage.setItem('loggedInUser', JSON.stringify(user));
+                }
+                redirectToHomePage(user.role);
+            } else {
+                alert('Invalid credentials, please try again.');
+            }
+        });
+
+        // Handle the Remember Me modal
+        window.onload = function() {
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+
+            if (loggedInUser) {
+                document.getElementById('rememberMeModal').style.display = 'flex';
+            } else {
+                showLoginForm();
+            }
+        }
+
+        // Handle modal buttons
+        document.getElementById('loginButton').addEventListener('click', function() {
+            document.getElementById('rememberMeModal').style.display = 'none';
+            showLoginForm();
+        });
+
+        document.getElementById('dashboardButton').addEventListener('click', function() {
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            if (loggedInUser) {
+                redirectToHomePage(loggedInUser.role);
+            }
+        });
+    </script>
+      <script>
+        function onSubmit(token) {
+          document.getElementById("demo-form").submit();
+        }
+      </script>
+</body>
+</html>

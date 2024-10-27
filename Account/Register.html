@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Registration</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        .register-container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <div class="login-container">
+        <button style="
+        border: 0px; 
+        background-color: transparent;
+        font-size: 30px;
+        text-align: center;
+        margin-left: 35%;
+        "
+        class="g-recaptcha" data-sitekey="6LcwA2wqAAAAAHPtFxW5fkTHxxfDCNnU64ToK5JX" data-callback="onSubmit"><b></b></button>
+        <h2 style="text-align: center; font-size: 30px; font-family: Verdana, Geneva, Tahoma, sans-serif;">Register</h2>
+    <input type="text" id="firstName" placeholder="First Name*" required>
+    <input type="text" id="middleName" placeholder="Middle Name (optional)">
+    <input type="text" id="lastName" placeholder="Last Name*" required>
+    <input type="number" id="phoneNumber" placeholder="Phone Number*" required>
+    <input type="email" id="email" placeholder="Email*" required>
+    <input type="number" id="Age" placeholder="AGE*" required>
+    <button onclick="registerStaff()">Register</button>
+</div>
+
+<script>
+    function registerStaff() {
+        const firstName = document.getElementById('firstName').value;
+        const middleName = document.getElementById('middleName').value;
+        const lastName = document.getElementById('lastName').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
+        const email = document.getElementById('email').value;
+        const age = document.getElementById('Age').value;
+
+        const staffData = {
+            firstName,
+            middleName,
+            lastName,
+            phoneNumber,
+            email,
+            Age,
+            approved: false // Default to not approved
+        };
+
+        // Save to local storage
+        let staffList = JSON.parse(localStorage.getItem('staffList')) || [];
+        staffList.push(staffData);
+        localStorage.setItem('staffList', JSON.stringify(staffList));
+
+        // Notify admin (in a real-world scenario, this would be a server-side notification)
+        alert(`Notification sent to admin: ${firstName} ${lastName} has registered. Approval needed.`);
+
+        // Clear form
+        document.getElementById('firstName').value = '';
+        document.getElementById('middleName').value = '';
+        document.getElementById('lastName').value = '';
+        document.getElementById('phoneNumber').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('Age').value = '';
+    }
+</script>
+
+</body>
+</html>

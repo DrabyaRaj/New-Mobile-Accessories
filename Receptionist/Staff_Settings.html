@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/favicon_io/android-chrome-192x192.png">
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="style.css">
+     
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <title>Admin Dashboard Panel | New MObile Accessories</title>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+               <img src="/favicon_io/android-chrome-192x192.png" alt="">
+            </div>
+
+            <span class="logo_name">New Mobile Accessories</span>
+        </div>
+
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="Home.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dahsboard</span>
+                </a></li>
+                <li><a href="Staff_Settings.html">
+                    <i class="uil uil-files-landscapes"></i>
+                    <span class="link-name">Staff Settings</span>
+                </a></li>
+                <li><a href="IMS.html">
+                    <i class="uil uil-thumbs-up"></i>
+                    <span class="link-name">IMS</span>
+                </a></li>
+                <li><a href="notice.html">
+                    <i class="uil uil-comments"></i>
+                    <span class="link-name">Notice</span>
+                </a></li>
+                <li><a href="chatfeature_live.html">
+                    <i class="uil uil-share"></i>
+                    <span class="link-name">Chat</span>
+                </a></li>
+            </ul>
+            
+            <ul class="logout-mode">
+                <li><a href="/index.html">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                    <span class="link-name">Dark Mode</span>
+                </a>
+
+                <div class="mode-toggle">
+                  <span class="switch"></span>
+                </div>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Notification System</h1>
+        <button id="requestNotification">Enable Notifications</button>
+        <div id="newPosts" style="display: none;"></div>
+    </div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            width: 100%; /* Full width */
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <script>
+        // Store the last notification time
+        let lastNotificationTime = Date.now();
+        let postCount = 0; // Track the number of posts
+
+        // Function to request notification permission
+        function requestNotificationPermission() {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    startMonitoringPosts(); // Start checking for new posts if permission is granted
+                } else {
+                    alert('Notification permission denied.');
+                }
+            });
+        }
+
+        // Function to simulate checking for new posts
+        function checkForNewPosts() {
+            // Simulate fetching new posts
+            postCount += Math.floor(Math.random() * 3); // Randomly add new posts (0 to 2)
+            if (postCount > 0) {
+                showNotification(`New Notice (${postCount})`, 'Click me to see the new notices!');
+                lastNotificationTime = Date.now();
+            }
+        }
+
+        // Function to show a notification
+        function showNotification(title, message) {
+            const options = {
+                body: message,
+                icon: 'icon.png', // Optional icon for the notification
+            };
+
+            const notification = new Notification(title, options);
+
+            // Event listener for notification click
+            notification.onclick = () => {
+                // Redirect to the Notices page or perform any action
+                window.location.href = '/Admin/chat.html'; // Change this to your actual notices page URL
+            };
+        }
+
+        // Start monitoring posts every 10 seconds (you can adjust the interval)
+        function startMonitoringPosts() {
+            setInterval(checkForNewPosts, 10000);
+        }
+
+        // Add event listener to the button
+        document.getElementById('requestNotification').addEventListener('click', requestNotificationPermission);
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

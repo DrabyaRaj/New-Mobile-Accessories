@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Staff</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #005bb5;
+        }
+
+        .staff-list {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .staff-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .staff-item:last-child {
+            border-bottom: none;
+        }
+
+        .edit-button,
+        .remove-button,
+        .view-button {
+            cursor: pointer;
+            color: #0066cc;
+            margin-left: 10px;
+        }
+
+        .edit-button:hover,
+        .view-button:hover {
+            text-decoration: underline;
+        }
+
+        .remove-button:hover {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Add Staff</h1>
+    <form id="addStaffForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+
+        <label for="role">Role:</label>
+        <select id="role" required>
+            <option value="staff">Staff</option>
+            <option value="receptionist">Receptionist</option>
+        </select>
+
+        <label for="profilePicture">Profile Picture:</label>
+        <input type="file" id="profilePicture" accept="image/*">
+
+        <input type="submit" value="Add Staff">
+    </form>
+
+    <div class="staff-list">
+        <h2>Staff Members</h2>
+        <div id="staffContainer"></div>
+    </div>
+
+    <script>
+        let staffList = JSON.parse(localStorage.getItem('staffList')) || [];
+
+        // Function to display staff members
+        function displayStaff() {
+            const staffContainer = document.getElementById('staffContainer');
+            staffContainer.innerHTML = '';
+
+            staffList.forEach((staff, index) => {
+                const staffItem = document.createElement('div');
+                staffItem.classList.add('staff-item');
+                staffItem.innerHTML = `
+                    <div>${staff.name} (${staff.role})</div>
+                    <div>
+                        <span class="view-button" onclick="viewProfile(${index})">View</span>
+                        <span class="edit-button" onclick="editStaff(${index})">Edit</span>
+                        <span class="remove-button" onclick="removeStaff(${index})">Remove</span>
+                    </div>
+                `;
+                staffContainer.appendChild(staffItem);
+            });
+        }
+
+        // Add staff function
+        document.getElementById('addStaffForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const profilePicture = document.getElementById('profilePicture').files[0];
+
+            // Check if email already exists
+            if (staffList.some(staff => staff.email === email)) {
+                alert('Staff with this email already exists!');
+                return;
+            }
+
+            const staffMember = {
+                name,
+                email,
+                password,
+                role,
+                profilePicture: profilePicture ? URL.createObjectURL(profilePicture) : 'default.jpg' // Default image if none provided
+            };
+
+            staffList.push(staffMember);
+            localStorage.setItem('staffList', JSON.stringify(staffList));
+
+            // Redirect to appropriate page based on role
+            if (role === 'receptionist') {
+                window.location.href = '/Receptionist/Home.html';
+            } else {
+                displayStaff(); // Refresh staff list if role is 'staff'
+            }
+
+            document.getElementById('addStaffForm').reset(); // Reset form
+        });
+
+        // View profile function
+        function viewProfile(index) {
+            const staff = staffList[index];
+            alert(`Name: ${staff.name}\nEmail: ${staff.email}\nRole: ${staff.role}`);
+        }
+
+        // Edit staff function
+        function editStaff(index) {
+            const staff = staffList[index];
+            document.getElementById('name').value = staff.name;
+            document.getElementById('email').value = staff.email;
+            document.getElementById('password').value = staff.password;
+            document.getElementById('role').value = staff.role;
+
+            staffList.splice(index, 1);
+            localStorage.setItem('staffList', JSON.stringify(staffList));
+            displayStaff();
+        }
+
+        // Remove staff function
+        function removeStaff(index) {
+            if (confirm('Are you sure you want to remove this staff member?')) {
+                staffList.splice(index, 1);
+                localStorage.setItem('staffList', JSON.stringify(staffList));
+                displayStaff();
+            }
+        }
+
+        window.onload = displayStaff;
+    </script>
+</body>
+</html>
