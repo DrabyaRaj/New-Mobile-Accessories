@@ -93,162 +93,58 @@
                 <style>
                     body {
                         font-family: Arial, sans-serif;
-                        background-color: #f4f4f4;
-                        margin: 0;
-                        padding: 20px;
+                        margin: 20px;
                     }
                     .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        background: white;
-                        padding: 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        margin-bottom: 20px;
                     }
-                    input, button {
-                        width: 100%;
-                        padding: 10px;
-                        margin: 10px 0;
+                    label {
+                        display: block;
+                        margin: 10px 0 5px;
                     }
-                    .product-list {
-                        margin-top: 20px;
-                    }
-                    .product-item {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        background: #f8f8f8;
-                        padding: 10px;
-                        border: 1px solid #ddd;
-                        border-radius: 5px;
+                    input {
                         margin-bottom: 10px;
                     }
-                    .product-item button {
-                        background: #e74c3c;
+                    button {
+                        padding: 10px;
+                        background-color: #007bff;
                         color: white;
                         border: none;
-                        border-radius: 5px;
                         cursor: pointer;
-                    }
-                    .product-item button.edit {
-                        background: #3498db;
-                    }
-                    .image-preview {
-                        max-width: 100%;
-                        margin-top: 10px;
                     }
                 </style>
             
-                <div class="container">
-                    <h1>Inventory Management System</h1>
-                    <input type="text" id="productName" placeholder="Product Name" required>
-                    <input type="number" id="productPrice" placeholder="Product Price" required>
-                    <input type="file" id="productImageInput" accept="image/*" required>
-                    <img id="imagePreview" class="image-preview" src="" alt="Image Preview" style="display:none;"/>
-                    <button id="addProduct">Add Product</button>
+            <h1>Inventory Management System</h1>
+            <div class="container">
+                <label for="productName">Product Name:</label>
+                <input type="text" id="productName" required>
+                
+                <label for="productPrice">Product Price:</label>
+                <input type="number" id="productPrice" required>
+                
+                <label for="productQuantity">Product Quantity:</label>
+                <input type="number" id="productQuantity" required>
+                
+                <button onclick="addProduct()">Add Product</button>
+            </div>
             
-                    <h2>Product List</h2>
-                    <div id="productList" class="product-list">
-                        <!-- Products will be listed here -->
-                    </div>
-                </div>
+            <script>
+                function addProduct() {
+                    const name = document.getElementById('productName').value;
+                    const price = parseFloat(document.getElementById('productPrice').value);
+                    const quantity = parseInt(document.getElementById('productQuantity').value);
             
-                <script>
-                    // Load products from local storage
-                    function loadProducts() {
-                        const products = JSON.parse(localStorage.getItem('products')) || [];
-                        const productList = document.getElementById('productList');
-                        productList.innerHTML = ''; // Clear existing products
+                    const product = { id: Date.now(), name, price, quantity };
+                    let products = JSON.parse(localStorage.getItem('products')) || [];
+                    products.push(product);
+                    localStorage.setItem('products', JSON.stringify(products));
             
-                        products.forEach((product, index) => {
-                            const productItem = document.createElement('div');
-                            productItem.className = 'product-item';
-                            productItem.innerHTML = `
-                                <span>${product.name} - $${product.price}</span>
-                                <div>
-                                    <button class="edit" onclick="editProduct(${index})">Edit</button>
-                                    <button onclick="removeProduct(${index})">Remove</button>
-                                </div>
-                            `;
-                            productList.appendChild(productItem);
-                        });
-                    }
-            
-                    // Add product to local storage
-                    function addProduct() {
-                        const name = document.getElementById('productName').value;
-                        const price = parseFloat(document.getElementById('productPrice').value);
-                        const imageInput = document.getElementById('productImageInput');
-            
-                        if (!name || isNaN(price) || !imageInput.files[0]) {
-                            alert('Please fill all fields correctly.');
-                            return;
-                        }
-            
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const products = JSON.parse(localStorage.getItem('products')) || [];
-                            products.push({ name, price, image: e.target.result }); // Use base64 encoded image
-                            localStorage.setItem('products', JSON.stringify(products));
-                            loadProducts();
-            
-                            // Clear input fields
-                            document.getElementById('productName').value = '';
-                            document.getElementById('productPrice').value = '';
-                            document.getElementById('productImageInput').value = '';
-                            document.getElementById('imagePreview').style.display = 'none'; // Hide preview
-                        };
-                        reader.readAsDataURL(imageInput.files[0]); // Convert the image file to base64
-                    }
-            
-                    // Edit a product
-                    function editProduct(index) {
-                        const products = JSON.parse(localStorage.getItem('products')) || [];
-                        const product = products[index];
-            
-                        // Set values in inputs
-                        document.getElementById('productName').value = product.name;
-                        document.getElementById('productPrice').value = product.price;
-                        document.getElementById('productImageInput').value = ''; // Reset file input
-                        document.getElementById('imagePreview').src = product.image; // Show current image
-                        document.getElementById('imagePreview').style.display = 'block';
-            
-                        // Remove the product after editing
-                        products.splice(index, 1);
-                        localStorage.setItem('products', JSON.stringify(products));
-                        loadProducts();
-                    }
-            
-                    // Remove a product
-                    function removeProduct(index) {
-                        const products = JSON.parse(localStorage.getItem('products')) || [];
-                        products.splice(index, 1);
-                        localStorage.setItem('products', JSON.stringify(products));
-                        loadProducts();
-                    }
-            
-                    // Show image preview when a file is selected
-                    document.getElementById('productImageInput').addEventListener('change', function () {
-                        const file = this.files[0];
-                        const reader = new FileReader();
-            
-                        reader.onload = function (e) {
-                            const imagePreview = document.getElementById('imagePreview');
-                            imagePreview.src = e.target.result;
-                            imagePreview.style.display = 'block'; // Show preview
-                        };
-            
-                        if (file) {
-                            reader.readAsDataURL(file);
-                        }
-                    });
-            
-                    // Event listeners
-                    document.getElementById('addProduct').addEventListener('click', addProduct);
-            
-                    // Load products on page load
-                    loadProducts();
-                </script>
+                    alert('Product added successfully!');
+                    document.getElementById('productName').value = '';
+                    document.getElementById('productPrice').value = '';
+                    document.getElementById('productQuantity').value = '';
+                }
+            </script>
     </section>
 
     <script src="script.js"></script>
