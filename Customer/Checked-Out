@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checked Out</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .checkout-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .checkout-item:last-child {
+            border-bottom: none;
+        }
+        .total {
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .received-info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            background: #eaf6fb;
+        }
+    </style>
+</head>
+<body>
+    
+    <p>Please take a screenshot for proof</p>
+    <div class="container">
+        <h1>Thank You for Your Purchase!</h1>
+        <div id="checkoutItems">
+            <!-- Checked-out items will be inserted here -->
+        </div>
+        <div class="total" id="totalAmount"></div>
+        <div class="received-info">
+            <p><strong>Received Date:</strong> <span id="receivedDate"></span></p>
+            <p><strong>Email:</strong> <span id="buyerEmail"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Load purchased items from local storage
+        function loadCheckedOut() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const buyerEmail = localStorage.getItem('buyerEmail') || 'Not provided';
+            const receivedDate = new Date().toLocaleDateString();
+            const checkoutItemsDiv = document.getElementById('checkoutItems');
+            const totalAmountDiv = document.getElementById('totalAmount');
+            let totalAmount = 0;
+
+            checkoutItemsDiv.innerHTML = ''; // Clear existing items
+
+            if (cart.length === 0) {
+                checkoutItemsDiv.innerHTML = '<p>No items purchased.</p>';
+                totalAmountDiv.innerText = '';
+                return;
+            }
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                totalAmount += itemTotal;
+                const checkoutItemDiv = document.createElement('div');
+                checkoutItemDiv.className = 'checkout-item';
+                checkoutItemDiv.innerHTML = `
+                    <span>${item.name} (x${item.quantity})</span>
+                    <span>$${itemTotal}</span>
+                `;
+                checkoutItemsDiv.appendChild(checkoutItemDiv);
+            });
+
+            totalAmountDiv.innerText = `Total Amount: $${totalAmount}`;
+            document.getElementById('receivedDate').innerText = receivedDate;
+            document.getElementById('buyerEmail').innerText = buyerEmail;
+
+            // Optionally clear the cart after checkout
+            localStorage.removeItem('cart');
+        }
+
+        // Load checked-out items on page load
+        loadCheckedOut();
+    </script>
+</body>
+</html>

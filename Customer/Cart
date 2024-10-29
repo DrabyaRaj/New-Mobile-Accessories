@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/favicon_io/android-chrome-192x192.png">
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="/CustomersCss/style.css">
+     
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <title>Customer | New MObile Accessories</title>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+               <img src="/favicon_io/android-chrome-192x192.png" alt="">
+            </div>
+
+            <span class="logo_name">New Mobile Accessories</span>
+        </div>
+
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="/Customer.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dahsboard</span>
+                </a></li>
+                <li><a href="/Customer/Products">
+                    <i class="uil uil-files-landscapes"></i>
+                    <span class="link-name">Products</span>
+                </a></li>
+                <li><a href="/Customer/Cart">
+                    <i class="uil uil-chart"></i>
+                    <span class="link-name">Cart</span>
+                </a></li>
+                <li><a href="/Customer/Help">
+                    <i class="uil uil-thumbs-up"></i>
+                    <span class="link-name">Help</span>
+                </a></li>
+                <li><a href="/Customer/Contact">
+                    <i class="uil uil-comments"></i>
+                    <span class="link-name">Contact</span>
+                </a></li>
+            </ul>
+            
+            <ul class="logout-mode">
+                <li><a href="/index.html">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                    <span class="link-name">Dark Mode</span>
+                </a>
+
+                <div class="mode-toggle">
+                  <span class="switch"></span>
+                </div>
+            </li>
+            </ul>
+        </div>
+    </nav>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .checkout-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .checkout-button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Your Cart</h1>
+        <div id="cartItems">
+            <!-- Cart items will be inserted here -->
+        </div>
+        <button class="checkout-button" onclick="checkout()">Checkout</button>
+    </div>
+
+    <script>
+        // Load cart items from local storage
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsDiv = document.getElementById('cartItems');
+            cartItemsDiv.innerHTML = ''; // Clear existing items
+
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<p>Your cart is empty.</p>';
+                return;
+            }
+
+            cart.forEach(item => {
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.className = 'cart-item';
+                cartItemDiv.innerHTML = `
+                    <span>${item.name} (x${item.quantity})</span>
+                    <span>$${item.price * item.quantity}</span>
+                `;
+                cartItemsDiv.appendChild(cartItemDiv);
+            });
+        }
+
+        // Checkout function to redirect to Checked-Out page
+        function checkout() {
+            // You can also implement any additional checkout logic here (like finalizing the order)
+            window.location.href = 'Checked-Out'; // Redirect to Checked-Out (without .html)
+        }
+
+        // Load cart on page load
+        loadCart();
+    </script>    
+    <script src="script.js"></script>
+</body>
+</html>
