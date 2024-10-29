@@ -153,90 +153,87 @@
     </div>
     
     <script>
-        // Sample permanent admin credentials (stored permanently)
-        const adminUser = {
-            email: 'info.nmaservice@gmail.com',
-            password: 'Dilliram2045',
-            role: 'admin'
-        };
+    // Sample data in local storage for demonstration (remove/comment this part in production)
+if (!localStorage.getItem("staffList")) {
+  const initialStaffList = [
+    { name: "Admin", email: "admin@gmail.com", password: "2045isbest", role: "admin" },
+    { name: "Receptionist1", email: "reception1@example.com", password: "reception123", role: "receptionist" },
+    { name: "Staff1", email: "staff1@example.com", password: "staff123", role: "staff" }
+  ];
+  localStorage.setItem("staffList", JSON.stringify(initialStaffList));
+}
 
-        // Function to redirect based on role
-        function redirectToHomePage(role) {
-            if (role === 'admin') {
-                window.location.href = '/Admin/Home.html';
-            } else if (role === 'receptionist') {
-                window.location.href = '/Receptionist/Home.html';
-            } else {
-                window.location.href = '/Staff/Home.html';
-            }
-        }
+// Fetch stored staff list from local storage
+let staffList = JSON.parse(localStorage.getItem('staffList')) || [];
 
-        // Fetch staff list from localStorage
-        let staffList = JSON.parse(localStorage.getItem('staffList')) || [];
+// Login function
+function login() {
+  const emailInput = document.getElementById("email").value;
+  const passwordInput = document.getElementById("password").value;
 
-        // Show the login form if the user is not remembered
-        function showLoginForm() {
-            document.querySelector('.login-container').style.display = 'block';
-        }
+  // Find a verified user with matching email and password
+  const verifiedUser = staffList.find(staff => staff.email === emailInput && staff.password === passwordInput);
 
-        // Function to handle login
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+  if (verifiedUser) {
+    // Store session details
+    sessionStorage.setItem("loggedInUserEmail", emailInput);
+    sessionStorage.setItem("loggedInUserRole", verifiedUser.role);
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
+    // Redirect based on role
+    if (verifiedUser.role === "admin") {
+      window.location.href = "/Admin/Home.html";
+    } else if (verifiedUser.role === "receptionist") {
+      window.location.href = "/Receptionist/Home.html";
+    } else {
+      window.location.href = "/Staff/Home.html"; // default for staff role
+    }
+  } else {
+    // Redirect to customers page if the account is unverified
+    window.location.href = "/customers";
+  }
+}
 
-            // Check for admin credentials
-            if (email === adminUser.email && password === adminUser.password) {
-                if (rememberMe) {
-                    localStorage.setItem('loggedInUser', JSON.stringify(adminUser));
-                }
-                redirectToHomePage('admin');
-                return;
-            }
+// Handle 'Remember Me' functionality
+function rememberMe() {
+  const rememberMeChecked = document.getElementById("rememberMe").checked;
+  const emailInput = document.getElementById("email").value;
+  const passwordInput = document.getElementById("password").value;
 
-            // Check if staff exists in the staff list
-            const user = staffList.find(staff => staff.email === email && staff.password === password);
+  if (rememberMeChecked) {
+    localStorage.setItem("rememberedEmail", emailInput);
+    localStorage.setItem("rememberedPassword", passwordInput);
+  } else {
+    localStorage.removeItem("rememberedEmail");
+    localStorage.removeItem("rememberedPassword");
+  }
+}
 
-            if (user) {
-                if (rememberMe) {
-                    localStorage.setItem('loggedInUser', JSON.stringify(user));
-                }
-                redirectToHomePage(user.role);
-            } else {
-                alert('Invalid credentials, please try again.');
-            }
-        });
+// Prefill remembered email and password on page load
+window.onload = function () {
+  const rememberedEmail = localStorage.getItem("rememberedEmail");
+  const rememberedPassword = localStorage.getItem("rememberedPassword");
 
-        // Handle the Remember Me modal
-        window.onload = function() {
-            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (rememberedEmail && rememberedPassword) {
+    document.getElementById("email").value = rememberedEmail;
+    document.getElementById("password").value = rememberedPassword;
 
-            if (loggedInUser) {
-                document.getElementById('rememberMeModal').style.display = 'flex';
-            } else {
-                showLoginForm();
-            }
-        }
+    const dialog = confirm("Would you like to log in or go to the dashboard?");
+    if (dialog) {
+      login(); // log in if the user confirms
+    } else {
+      window.location.href = "/Dashboard"; // redirect to dashboard if declined
+    }
+  }
+};
 
-        // Handle modal buttons
-        document.getElementById('loginButton').addEventListener('click', function() {
-            document.getElementById('rememberMeModal').style.display = 'none';
-            showLoginForm();
-        });
+// Add event listeners for login and remember me checkbox
+document.getElementById("loginButton").addEventListener("click", function (event) {
+  event.preventDefault(); // Prevent form submission
+  login();
+});
 
-        document.getElementById('dashboardButton').addEventListener('click', function() {
-            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-            if (loggedInUser) {
-                redirectToHomePage(loggedInUser.role);
-            }
-        });
-    </script>
-      <script>
-        function onSubmit(token) {
-          document.getElementById("demo-form").submit();
-        }
+document.getElementById("rememberMe").addEventListener("change", rememberMe);
+        
       </script>
 </body>
 </html>
