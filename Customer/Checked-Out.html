@@ -3,95 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checked-Out</title>
+    <title>Checked Out</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        #purchaseCode {
-            margin-top: 20px;
-            font-size: 20px;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        .total { font-weight: bold; }
+        #goBackBtn { margin-top: 20px; }
     </style>
 </head>
 <body>
+    <h1>Checked Out</h1>
+    <div id="purchaseDetails"></div>
+    <button id="goBackBtn" onclick="goBack()">Go Back</button>
 
-<h1>Checked-Out</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-    <tbody id="purchasedItems">
-        <!-- Purchased items will be populated here -->
-    </tbody>
-</table>
+    <script>
+        function loadPurchaseDetails() {
+            const purchases = JSON.parse(localStorage.getItem('AdminCodeView')) || [];
+            const lastPurchase = purchases[purchases.length - 1]; // Get the most recent purchase
 
-<h3 id="totalAmount">Total Amount: $0.00</h3>
-<div id="purchaseCode"></div>
+            if (lastPurchase) {
+                const purchaseItems = lastPurchase.items.map(item => {
+                    const total = item.price * item.quantity;
+                    return `<tr>
+                        <td>${item.name}</td>
+                        <td>$${item.price}</td>
+                        <td>${item.quantity}</td>
+                        <td>$${total}</td>
+                    </tr>`;
+                }).join('');
 
-<script>
-    // Function to load purchased items from local storage
-    function loadPurchasedItems() {
-        const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || [];
-        const purchasedItemsContainer = document.getElementById('purchasedItems');
-        purchasedItemsContainer.innerHTML = '';
-        let totalAmount = 0;
-
-        if (purchasedItems.length === 0) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="4" style="text-align:center;">No purchased items found.</td>`;
-            purchasedItemsContainer.appendChild(row);
-            return;
+                document.getElementById('purchaseDetails').innerHTML = `
+                    <h2>Order Summary</h2>
+                    <p>Purchase Code: <strong>${lastPurchase.code}</strong></p>
+                    <p>Date of Purchase: <strong>${lastPurchase.date}</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${purchaseItems}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                document.getElementById('purchaseDetails').innerHTML = '<p>No purchase found.</p>';
+            }
         }
 
-        purchasedItems.forEach(item => {
-            const totalPrice = item.price * item.quantity;
-            totalAmount += totalPrice;
+        function goBack() {
+            window.history.back(); // Go back to the previous page
+        }
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.name}</td>
-                <td>$${item.price.toFixed(2)}</td>
-                <td>${item.quantity}</td>
-                <td>$${totalPrice.toFixed(2)}</td>
-            `;
-            purchasedItemsContainer.appendChild(row);
-        });
-
-        document.getElementById('totalAmount').innerText = `Total Amount: $${totalAmount.toFixed(2)}`;
-        
-        // Display purchase code
-        const purchaseCode = generatePurchaseCode();
-        document.getElementById('purchaseCode').innerText = `Purchase Code: ${purchaseCode}`;
-    }
-
-    // Function to generate a random purchase code
-    function generatePurchaseCode() {
-        return 'CODE-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    }
-
-    // Load purchased items when the page loads
-    window.onload = loadPurchasedItems;
-</script>
-
+        // Initial load
+        loadPurchaseDetails();
+    </script>
 </body>
 </html>

@@ -158,3 +158,30 @@ function removeItem(index) {
 
 // Load items when the page loads
 window.onload = loadCheckedOutItems;
+// cart.js - Example code for cart functionality
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+// Add to cart with quantity check
+function addToCart(productId, quantity) {
+    const product = inventory.find(p => p.id === productId);
+    if (!product) return console.error("Product not found!");
+
+    if (quantity > product.quantity) {
+        alert("Quantity exceeds available stock");
+        return;
+    }
+    
+    cart.push({ ...product, quantity });
+    saveCart();
+}
+
+// Save cart to local storage
+function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// Calculate total price
+function calculateTotal() {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+}

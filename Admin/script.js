@@ -71,3 +71,33 @@ function checkLoginStatus() {
         window.location.href = '/Error/Error_ERROR.html';
     }
 }
+// ims.js - Example code for inventory management system
+
+let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+
+// Function to add a product to inventory
+function addProduct(name, price, quantity, imageUrl) {
+    const product = {
+        id: generateId(),
+        name: name,
+        price: price,
+        quantity: quantity,
+        imageUrl: imageUrl,
+        dateAdded: new Date().toLocaleDateString()
+    };
+    inventory.push(product);
+    saveInventory();
+    console.log(`Product added: ${name}`);
+}
+
+// Generate a unique ID
+function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Save to localStorage
+function saveInventory() {
+    localStorage.setItem("inventory", JSON.stringify(inventory));
+}
+
+// Add hundreds more functions for validation, data formatting, updating, deleting, etc.
