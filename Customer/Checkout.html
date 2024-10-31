@@ -3,86 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
+    <title>Cart</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        h1 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; }
+        /* Basic styling */
+        .cart-container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        .total { font-weight: bold; }
-        #confirmBtn { margin-top: 20px; }
+        button { margin-top: 20px; width: 100%; padding: 10px; }
     </style>
 </head>
 <body>
-    <h1>Checkout</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="cartItems"></tbody>
-    </table>
-    <p class="total">Total Amount: $<span id="totalAmount">0</span></p>
-    <button id="confirmBtn" onclick="confirmPurchase()">Confirm Purchase</button>
+    <button href="/Customer.html">Go Back</button>
+    <br>
+    <div class="cart-container">
+        <h1>Your Cart</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="cartItems"></tbody>
+        </table>
+        <button onclick="checkout()">Confirm</button>
+    </div>
 
     <script>
-        const cartItems = document.getElementById('cartItems');
-        const totalAmount = document.getElementById('totalAmount');
-
-        function loadCartItems() {
-            const items = JSON.parse(localStorage.getItem('cartItems')) || [];
-            cartItems.innerHTML = items.map((item, index) => {
-                const total = item.price * item.quantity;
-                return `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>$${item.price}</td>
-                        <td>${item.quantity}</td>
-                        <td>$${total}</td>
-                        <td><button onclick="removeFromCart(${index})">Remove</button></td>
-                    </tr>
-                `;
-            }).join('');
-
-            // Calculate total
-            const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            totalAmount.innerText = total.toFixed(2);
+        function loadCart() {
+            return JSON.parse(localStorage.getItem('cart')) || [];
         }
 
-        function removeFromCart(index) {
-            const items = JSON.parse(localStorage.getItem('cartItems')) || [];
-            items.splice(index, 1);
-            localStorage.setItem('cartItems', JSON.stringify(items));
-            loadCartItems();
+        function displayCart() {
+            const cart = loadCart();
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = cart.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>$${item.price}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price * item.quantity}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4">Your cart is empty.</td></tr>';
         }
 
-        function confirmPurchase() {
-            const purchaseCode = generatePurchaseCode();
-            const purchaseDate = new Date().toLocaleString();
-            const purchaseDetails = { code: purchaseCode, date: purchaseDate, items: JSON.parse(localStorage.getItem('cartItems')) };
+        function checkout() {
+            const cart = loadCart();
+            if (cart.length > 0) {
+                // Store checkout data in AdminCodeView
+                const code = `#${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+                const date = new Date().toLocaleDateString();
+                const order = { code, date, items: cart };
+                const orders = JSON.parse(localStorage.getItem('AdminCodeView')) || [];
+                orders.push(order);
+                localStorage.setItem('AdminCodeView', JSON.stringify(orders));
 
-            // Store purchase details in local storage
-            const purchaseHistory = JSON.parse(localStorage.getItem('AdminCodeView')) || [];
-            purchaseHistory.push(purchaseDetails);
-            localStorage.setItem('AdminCodeView', JSON.stringify(purchaseHistory));
+                localStorage.removeItem('cart'); // Clear cart
 
-            alert(`Purchase confirmed!\nCode: ${purchaseCode}\nDate: ${purchaseDate}`);
-            localStorage.removeItem('cartItems'); // Clear cart
-            loadCartItems();
-            location.href = 'Checked-Out.html'; // Redirect to Checked-Out page
+                // Redirect to Checked-Out.html
+                alert(`Order placed! Your code is ${code}.`);
+                window.location.href = "Checked-Out.html";
+            } else {
+                alert('Your cart is empty.');
+            }
         }
 
-        function generatePurchaseCode() {
-            return 'CODE-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        }
-
-        // Initial load
-        loadCartItems();
+        displayCart(); // Initial load
     </script>
 </body>
 </html>

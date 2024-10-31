@@ -91,82 +91,70 @@
                     <span class="text">Inventory Management</span>
                 </div>
                 <style>
-                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-                    h1 { text-align: center; }
-                    form { margin: 20px 0; }
-                    input, button { padding: 10px; margin: 5px; width: calc(100% - 22px); }
-                    .product { border: 1px solid #ddd; margin: 10px; padding: 10px; text-align: center; }
+                    /* Basic styling */
+                    .ims-container { padding: 20px; max-width: 600px; margin: 0 auto; }
+                    input, button { padding: 10px; margin: 5px 0; width: 100%; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
                 </style>
-                <h1>Inventory Management System</h1>
-                <form id="productForm">
+                <div class="ims-container">
+                    <h1>Inventory Management System</h1>
+                    
                     <input type="text" id="productName" placeholder="Product Name" required>
                     <input type="number" id="productPrice" placeholder="Product Price" required>
                     <input type="number" id="productQuantity" placeholder="Product Quantity" required>
-                    <div>
-                        <button type="button" onclick="document.getElementById('imageInput').click();">Choose Image from Device</button>
-                        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="loadImage(event)">
-                        <input type="url" id="productImage" placeholder="Product Image URL">
-                    </div>
-                    <button type="submit">Add Product</button>
-                </form>
+                    <button onclick="addProduct()">Add Product</button>
             
-                <h2>Current Products</h2>
-                <div id="productList"></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productList"></tbody>
+                    </table>
+                </div>
             
                 <script>
-                    const productForm = document.getElementById('productForm');
-                    const productList = document.getElementById('productList');
-                    let selectedImage = '';
-            
-                    // Load products from localStorage
                     function loadProducts() {
-                        const products = JSON.parse(localStorage.getItem('products')) || [];
-                        productList.innerHTML = products.map((product, index) => `
-                            <div class="product">
-                                <img src="${product.image}" alt="${product.name}" width="100">
-                                <h3>${product.name}</h3>
-                                <p>Price: $${product.price}</p>
-                                <p>Quantity: ${product.quantity}</p>
-                                <button onclick="removeProduct(${index})">Remove</button>
-                            </div>
+                        return JSON.parse(localStorage.getItem('products')) || [];
+                    }
+            
+                    function saveProducts(products) {
+                        localStorage.setItem('products', JSON.stringify(products));
+                    }
+            
+                    function displayProducts() {
+                        const products = loadProducts();
+                        const productList = document.getElementById('productList');
+                        productList.innerHTML = products.map(product => `
+                            <tr>
+                                <td>${product.name}</td>
+                                <td>${product.price}</td>
+                                <td>${product.quantity}</td>
+                            </tr>
                         `).join('');
                     }
             
-                    // Add product to localStorage
-                    productForm.addEventListener('submit', function(e) {
-                        e.preventDefault();
+                    function addProduct() {
                         const name = document.getElementById('productName').value;
-                        const price = parseFloat(document.getElementById('productPrice').value);
-                        const quantity = parseInt(document.getElementById('productQuantity').value);
-                        const image = selectedImage || document.getElementById('productImage').value;
+                        const price = document.getElementById('productPrice').value;
+                        const quantity = document.getElementById('productQuantity').value;
             
-                        const products = JSON.parse(localStorage.getItem('products')) || [];
-                        products.push({ name, price, quantity, image });
-                        localStorage.setItem('products', JSON.stringify(products));
-            
-                        productForm.reset();
-                        selectedImage = ''; // Reset selected image
-                        loadProducts();
-                    });
-            
-                    function removeProduct(index) {
-                        const products = JSON.parse(localStorage.getItem('products')) || [];
-                        products.splice(index, 1);
-                        localStorage.setItem('products', JSON.stringify(products));
-                        loadProducts();
-                    }
-            
-                    function loadImage(event) {
-                        const reader = new FileReader();
-                        reader.onload = function(){
-                            selectedImage = reader.result; // Store the image data URL
-                            document.getElementById('productImage').value = ''; // Clear URL field
+                        if (name && price && quantity) {
+                            const products = loadProducts();
+                            products.push({ name, price: parseFloat(price), quantity: parseInt(quantity) });
+                            saveProducts(products);
+                            displayProducts();
+                            document.getElementById('productName').value = '';
+                            document.getElementById('productPrice').value = '';
+                            document.getElementById('productQuantity').value = '';
                         }
-                        reader.readAsDataURL(event.target.files[0]); // Convert image file to data URL
                     }
             
-                    // Initial load
-                    loadProducts();
+                    displayProducts(); // Initial load
                 </script>
     </section>
     <script src="script.js"></script>

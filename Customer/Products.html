@@ -5,28 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        h1 { text-align: center; }
-        .product { border: 1px solid #ddd; margin: 10px; padding: 10px; text-align: center; display: inline-block; width: 200px; }
-        button { padding: 5px; }
-        #cartBtn { margin-top: 20px; }
+        /* Basic styling */
+        .products-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
+        .product { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .product button { margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>Available Products</h1>
-    <div id="productList"></div>
-    <button id="cartBtn" onclick="location.href='Checkout.html'">Go to Cart</button>
+    <button href="/Customer.html">Go Back</button>
+<br>
+    <div class="products-container" id="productContainer"></div>
 
     <script>
-        const productList = document.getElementById('productList');
-
-        // Load products from localStorage
         function loadProducts() {
-            const products = JSON.parse(localStorage.getItem('products')) || [];
-            productList.innerHTML = products.map((product, index) => `
+            return JSON.parse(localStorage.getItem('products')) || [];
+        }
+
+        function saveProducts(products) {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        function displayProducts() {
+            const products = loadProducts();
+            const productContainer = document.getElementById('productContainer');
+            productContainer.innerHTML = products.map((product, index) => `
                 <div class="product">
-                    <img src="${product.image}" alt="${product.name}" width="100">
-                    <h3>${product.name}</h3>
+                    <h2>${product.name}</h2>
                     <p>Price: $${product.price}</p>
                     <p>Available: ${product.quantity}</p>
                     <button onclick="addToCart(${index})">Add to Cart</button>
@@ -35,22 +39,27 @@
         }
 
         function addToCart(index) {
-            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const products = loadProducts();
             const product = products[index];
+            const quantity = parseInt(prompt(`Enter quantity for ${product.name} (Available: ${product.quantity}):`));
 
-            const quantity = prompt('Enter quantity:', 1);
             if (quantity > 0 && quantity <= product.quantity) {
-                const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-                cartItems.push({ ...product, quantity: parseInt(quantity) });
-                localStorage.setItem('cartItems', JSON.stringify(cartItems));
-                alert('Added to cart!');
+                product.quantity -= quantity; // Decrease quantity
+                saveProducts(products); // Update in storage
+
+                // Save to cart
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.push({ name: product.name, price: product.price, quantity });
+                localStorage.setItem('cart', JSON.stringify(cart));
+
+                displayProducts(); // Update display
+                alert(`${product.name} added to cart!`);
             } else {
                 alert('Invalid quantity!');
             }
         }
 
-        // Initial load
-        loadProducts();
+        displayProducts(); // Initial load
     </script>
 </body>
 </html>
