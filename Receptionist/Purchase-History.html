@@ -5,64 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase History</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        h1 { text-align: center; }
+        /* Basic styling */
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        #searchBar { margin-bottom: 20px; width: 100%; padding: 10px; font-size: 16px; }
-        #goBackBtn { margin-top: 20px; display: block; text-align: center; }
+        .button { padding: 5px 10px; cursor: pointer; }
+        .button.action { background-color: #5bc0de; color: #fff; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 5px; width: 90%; max-width: 500px; position: relative; }
+        .close { position: absolute; top: 10px; right: 15px; cursor: pointer; color: red; font-size: 18px; }
+        h2 { margin-top: 0; }
+        .button.verify { background-color: #5cb85c; color: #fff; margin-top: 10px; }
+        .button.delete { background-color: #d9534f; color: #fff; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>Purchase History</h1>
-    <input type="text" id="searchBar" placeholder="Search by Purchase Code" oninput="filterPurchases()" />
+    <div class="container">
+        <h1>Purchase History</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Purchase Code</th>
+                    <th>Date of Purchase</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="purchaseList"></tbody>
+        </table>
+    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Purchase Code</th>
-                <th>Date of Purchase</th>
-            </tr>
-        </thead>
-        <tbody id="purchaseHistory"></tbody>
-    </table>
-    <button id="goBackBtn" onclick="goBack()">Go Back</button>
-    <p>Please take a screenshot for proof. Requested by - New Mobile Accessories IT Department</p>
+    <!-- Purchase Details Modal -->
+    <div class="modal" id="purchaseModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Purchase Details</h2>
+            <p><strong>Purchase Code:</strong> <span id="modalCode"></span></p>
+            <p><strong>Date of Purchase:</strong> <span id="modalDate"></span></p>
+            <p><strong>Total Price:</strong> $<span id="modalTotal"></span></p>
+            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+            <h3>Purchased Products</h3>
+            <ul id="productDetailsList"></ul>
+            <button class="button verify" onclick="verifyPayment()">Verify Payment</button>
+            <button class="button delete" onclick="deletePurchase()">Delete Purchase</button>
+        </div>
+    </div>
 
     <script>
-        const purchaseHistory = document.getElementById('purchaseHistory');
-        const searchBar = document.getElementById('searchBar');
+        let purchases = JSON.parse(localStorage.getItem('purchaseHistory')) || [];
+        let currentPurchaseIndex = null;
 
-        function loadPurchaseHistory() {
-            const purchases = JSON.parse(localStorage.getItem('AdminCodeView')) || [];
-            return purchases;
-        }
-
-        function displayPurchases(purchases) {
-            purchaseHistory.innerHTML = purchases.map(purchase => `
+        function displayPurchases() {
+            const purchaseList = document.getElementById('purchaseList');
+            purchaseList.innerHTML = purchases.map((purchase, index) => `
                 <tr>
                     <td>${purchase.code}</td>
                     <td>${purchase.date}</td>
+                    <td>$${purchase.total}</td>
+                    <td>${purchase.verified ? 'Verified' : 'Unverified'}</td>
+                    <td>
+                        <button class="button action" onclick="openModal(${index})">View</button>
+                    </td>
                 </tr>
-            `).join('') || '<tr><td colspan="2">No purchases found.</td></tr>';
+            `).join('');
         }
 
-        function filterPurchases() {
-            const searchTerm = searchBar.value.toLowerCase();
-            const purchases = loadPurchaseHistory();
-            const filteredPurchases = purchases.filter(purchase => 
-                purchase.code.toLowerCase().includes(searchTerm)
-            );
-            displayPurchases(filteredPurchases);
+        function openModal(index) {
+            currentPurchaseIndex = index;
+            const purchase = purchases[index];
+            
+            // Populate modal with purchase details
+            document.getElementById('modalCode').innerText = purchase.code;
+            document.getElementById('modalDate').innerText = purchase.date;
+            document.getElementById('modalTotal').innerText = purchase.total;
+            document.getElementById('modalStatus').innerText = purchase.verified ? 'Verified' : 'Unverified';
+            
+            // Populate products list in modal
+            const productDetailsList = document.getElementById('productDetailsList');
+            productDetailsList.innerHTML = purchase.items.map(item => `
+                <li><strong>${item.name}</strong> - Quantity: ${item.quantity} - Price: $${item.price}</li>
+            `).join('');
+            
+            // Show modal
+            document.getElementById('purchaseModal').style.display = 'flex';
         }
 
-        function goBack() {
-            window.history.back(); // Go back to the previous page
+        function verifyPayment() {
+            if (currentPurchaseIndex !== null) {
+                purchases[currentPurchaseIndex].verified = true;
+                localStorage.setItem('purchaseHistory', JSON.stringify(purchases));
+                displayPurchases();
+                closeModal();
+            }
         }
 
-        // Initial load
-        const purchases = loadPurchaseHistory();
-        displayPurchases(purchases);
+        function deletePurchase() {
+            if (currentPurchaseIndex !== null) {
+                if (confirm("Are you sure you want to delete this purchase?")) {
+                    purchases.splice(currentPurchaseIndex, 1);
+                    localStorage.setItem('purchaseHistory', JSON.stringify(purchases));
+                    displayPurchases();
+                    closeModal();
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('purchaseModal').style.display = 'none';
+        }
+
+        displayPurchases(); // Load purchases on page load
     </script>
 </body>
 </html>
